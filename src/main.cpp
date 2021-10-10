@@ -17,6 +17,8 @@ painlessMesh mesh;
 void checkOnlineDevice();
 Task taskCheckOnlineDevice(TASK_SECOND * 1, TASK_FOREVER, &checkOnlineDevice);
 
+String nodeId = "";
+
 /**
  * 刷新token
  */
@@ -45,6 +47,12 @@ void meshCallback(uint32_t from, String &msg) {
   Serial.printf("Received from %u msg=%s\n", from, msg.c_str());
   DynamicJsonDocument doc(256);
   deserializeJson(doc, result);
+
+  String id = doc["id"];
+
+  if(!id.equals(nodeId)){
+    return;
+  }
 
   if(doc["cmd"] == "open"){
     servo.write(SERVO_ANGLE_MIN);
@@ -83,7 +91,9 @@ void setup() {
   // userScheduler.addTask(taskCheckOnlineDevice);
   // taskCheckOnlineDevice.enable();
 
-  screen.setId(String(mesh.getNodeId()));
+  nodeId = String(mesh.getNodeId());
+
+  screen.setId(nodeId);
 }
 
 
